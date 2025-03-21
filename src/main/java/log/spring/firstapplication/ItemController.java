@@ -1,54 +1,49 @@
 package log.spring.firstapplication;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.PrintWriter;
+import org.json.JSONObject;
 
-@WebServlet("/itemController")
+@WebServlet(name = "Item", value = "/itemController")
 public class ItemController extends HttpServlet {
-    private static final Map<Integer, String> items = new HashMap<>();
-    private static int itemCounter = 1;
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("text/plain");
-        response.getWriter().write("Items: " + items.toString());
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        System.out.println("Calling the doGet method");
+
+
+        JSONObject jsonResponse = new JSONObject();
+        jsonResponse.put("id", 101);
+        jsonResponse.put("itemName", "Laptop");
+        jsonResponse.put("price", 1200.99);
+
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        out.print(jsonResponse.toString());
+        out.flush();
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("Calling the doPost method");
+
         String itemName = request.getParameter("itemName");
-        if (itemName != null) {
-            items.put(itemCounter++, itemName);
-            response.getWriter().write("Item added: " + itemName);
-        } else {
-            response.getWriter().write("Error: Item name is required!");
-        }
-    }
+        String price = request.getParameter("price");
 
-    @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        String itemName = request.getParameter("itemName");
-        if (items.containsKey(id)) {
-            items.put(id, itemName);
-            response.getWriter().write("Item updated: " + itemName);
-        } else {
-            response.getWriter().write("Item not found!");
-        }
-    }
 
-    @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        if (items.remove(id) != null) {
-            response.getWriter().write("Item deleted: " + id);
-        } else {
-            response.getWriter().write("Item not found!");
-        }
+        JSONObject jsonResponse = new JSONObject();
+        jsonResponse.put("message", "Item added successfully");
+        jsonResponse.put("itemName", itemName);
+        jsonResponse.put("price", price);
+
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        out.print(jsonResponse.toString());
+        out.flush();
     }
 }
